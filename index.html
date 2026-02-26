@@ -2,37 +2,72 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.4/dist/mindar-image.prod.js"></script>
+
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+    #startButton {
+      position: fixed;
+      z-index: 999;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 15px 25px;
+      font-size: 18px;
+      background: hotpink;
+      border: none;
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
-<a-scene 
-  mindar-image="imageTargetSrc: targets.mind;" 
-  color-space="sRGB" 
-  renderer="colorManagement: true, physicallyCorrectLights" 
-  vr-mode-ui="enabled: false" 
-  device-orientation-permission-ui="enabled: false">
 
-  <a-assets>
-    <video id="vid" src="video.mp4" preload="auto" loop="true" crossorigin="anonymous"></video>
-  </a-assets>
+<button id="startButton">Start AR</button>
+
+<a-scene
+  mindar-image="imageTargetSrc: targets.mind;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  embedded
+  color-space="sRGB"
+  renderer="colorManagement: true, physicallyCorrectLights">
 
   <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-video src="#vid" width="1" height="0.6" position="0 0 0"></a-video>
+    <a-box position="0 0 0" color="red"></a-box>
   </a-entity>
 
 </a-scene>
 
 <script>
-  document.querySelector('a-scene').addEventListener('targetFound', () => {
-    document.querySelector('#vid').play();
+  const sceneEl = document.querySelector('a-scene');
+  const startButton = document.querySelector('#startButton');
+
+  startButton.addEventListener('click', async () => {
+    await sceneEl.systems["mindar-image-system"].start();
+    startButton.style.display = "none";
+    console.log("AR Started");
   });
 
-  document.querySelector('a-scene').addEventListener('targetLost', () => {
-    document.querySelector('#vid').pause();
+  sceneEl.addEventListener("arError", () => {
+    alert("AR ERROR: targets.mind mungkin tidak ditemukan atau HTTPS belum aktif.");
+  });
+
+  sceneEl.addEventListener("targetFound", () => {
+    console.log("Target Found");
+  });
+
+  sceneEl.addEventListener("targetLost", () => {
+    console.log("Target Lost");
   });
 </script>
 
