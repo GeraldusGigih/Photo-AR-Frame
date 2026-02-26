@@ -4,42 +4,35 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- MindAR -->
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.7.1/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
     <style>
+        html,
         body {
             margin: 0;
+            width: 100%;
+            height: 100%;
             overflow: hidden;
         }
 
-        #startButton {
+        a-scene {
             position: fixed;
-            z-index: 999;
             top: 50%;
             left: 50%;
+            width: 1920px;
+            height: 1080px;
             transform: translate(-50%, -50%);
-            padding: 15px 25px;
-            font-size: 18px;
-            background: hotpink;
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
+            max-width: 100vw;
+            max-height: 100vh;
         }
     </style>
 </head>
 
 <body>
-
-    <button id="startButton">Start</button>
-
-    <a-scene mindar-image="imageTargetSrc: targets.mind;" vr-mode-ui="enabled: false"
-        device-orientation-permission-ui="enabled: false" embedded color-space="sRGB"
+    <a-scene id="arScene" mindar-image="imageTargetSrc: targets.mind; autoStart: true;" vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false" color-space="sRGB"
         renderer="colorManagement: true, physicallyCorrectLights">
 
         <a-assets>
@@ -50,30 +43,21 @@
         <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
         <a-entity mindar-image-target="targetIndex: 0">
-
-            <!-- VIDEO OVERLAY -->
-            <a-video src="#myvideo" width="1" height="0.6" position="0 0 0">
-            </a-video>
-
+            <a-plane width="1.125" height="2" position="0 0 0" rotation="0 0 0"
+                material="src: #myvideo; shader: flat; transparent: true"></a-plane>
         </a-entity>
 
     </a-scene>
 
     <script>
-        const sceneEl = document.querySelector('a-scene');
-        const startButton = document.querySelector('#startButton');
         const video = document.querySelector('#myvideo');
+        const target = document.querySelector('[mindar-image-target]');
 
-        startButton.addEventListener('click', async () => {
-            await sceneEl.systems["mindar-image-system"].start();
-            startButton.style.display = "none";
-        });
-
-        sceneEl.addEventListener("targetFound", () => {
+        target.addEventListener("targetFound", () => {
             video.play();
         });
 
-        sceneEl.addEventListener("targetLost", () => {
+        target.addEventListener("targetLost", () => {
             video.pause();
         });
     </script>
